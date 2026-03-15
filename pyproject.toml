@@ -1,0 +1,21 @@
+[project]
+name = "plex-mcp"
+version = "0.1.0"
+description = "MCP server for Plex Media Server"
+readme = "README.md"
+authors = [
+    { name = "Jeremy Beker", email = "gothmog@confusticate.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+plex-mcp = "plex_mcp.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
