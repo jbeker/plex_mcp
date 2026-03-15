@@ -9,10 +9,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
+VALID_TRANSPORTS = ("stdio", "sse", "streamable-http")
+
+
 @dataclass
 class Settings:
     plex_url: str
     read_only: bool = True
+    transport: str = "stdio"
     token_path: Path = field(default_factory=lambda: Path(".plex_token"))
     client_id_path: Path = field(default_factory=lambda: Path(".plex_client_id"))
 
@@ -29,4 +33,10 @@ def load_settings() -> Settings:
 
     read_only = os.environ.get("PLEX_READ_ONLY", "true").lower() in ("true", "1", "yes")
 
-    return Settings(plex_url=plex_url, read_only=read_only)
+    transport = os.environ.get("PLEX_TRANSPORT", "stdio").lower()
+    if transport not in VALID_TRANSPORTS:
+        raise RuntimeError(
+            f"Invalid PLEX_TRANSPORT={transport!r}. Must be one of: {', '.join(VALID_TRANSPORTS)}"
+        )
+
+    return Settings(plex_url=plex_url, read_only=read_only, transport=transport)
