@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import platform
 import sys
 import time
 from pathlib import Path
@@ -38,15 +39,23 @@ class PlexClient:
         self._last_renewal_attempt: float = 0
         self._client = self._build_client(token)
 
+    def _plex_headers(self, token: str) -> dict[str, str]:
+        return {
+            "X-Plex-Token": token,
+            "X-Plex-Client-Identifier": self._client_id,
+            "X-Plex-Product": "Plex MCP Server",
+            "X-Plex-Version": "0.1.0",
+            "X-Plex-Platform": platform.system(),
+            "X-Plex-Platform-Version": platform.release(),
+            "X-Plex-Device": platform.system(),
+            "X-Plex-Device-Name": platform.node(),
+            "Accept": "application/json",
+        }
+
     def _build_client(self, token: str) -> httpx.AsyncClient:
         return httpx.AsyncClient(
             base_url=self._base_url,
-            headers={
-                "X-Plex-Token": token,
-                "X-Plex-Client-Identifier": self._client_id,
-                "X-Plex-Product": "Plex MCP Server",
-                "Accept": "application/json",
-            },
+            headers=self._plex_headers(token),
             timeout=30,
         )
 
@@ -70,12 +79,7 @@ class PlexClient:
         try:
             resp = await self._client.get(
                 "https://plex.tv/api/v2/user",
-                headers={
-                    "X-Plex-Token": self._token,
-                    "X-Plex-Client-Identifier": self._client_id,
-                    "X-Plex-Product": "Plex MCP Server",
-                    "Accept": "application/json",
-                },
+                headers=self._plex_headers(self._token),
             )
             if resp.status_code != 200:
                 return False
