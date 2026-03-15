@@ -45,14 +45,6 @@ class PlexClient:
         self._last_renewal_attempt: float = 0
         self._client = self._build_client(token)
 
-        if debug:
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format="%(asctime)s [%(name)s] %(message)s",
-                stream=sys.stderr,
-            )
-            logger.setLevel(logging.DEBUG)
-
     def _plex_headers(self, token: str) -> dict[str, str]:
         return {
             "X-Plex-Token": token,

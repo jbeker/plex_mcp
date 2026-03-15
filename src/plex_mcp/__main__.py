@@ -1,6 +1,8 @@
 """Entry point: authenticate interactively, then start the MCP server."""
 
 import argparse
+import logging
+import sys
 
 from .auth import ensure_authenticated
 from .config import VALID_TRANSPORTS, load_settings
@@ -52,6 +54,15 @@ def main() -> None:
         settings.read_only = args.read_only
     if args.debug is not None:
         settings.debug = args.debug
+
+    if settings.debug:
+        plex_logger = logging.getLogger("plex_mcp")
+        plex_logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(message)s"))
+        plex_logger.addHandler(handler)
+        plex_logger.propagate = False
 
     ensure_authenticated(settings)
     # Import and create server after auth so stdout is free for interactive prompts
