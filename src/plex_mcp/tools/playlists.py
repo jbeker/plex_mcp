@@ -4,22 +4,22 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import Context
 
-from ..server import get_ctx, mcp, require_write
+from ..server import debug_tool, get_ctx, require_write
 
 
-@mcp.tool()
+@debug_tool()
 async def list_playlists(ctx: Context) -> list[dict]:
     """List all playlists on the Plex server."""
     return await get_ctx(ctx).client.list_playlists()
 
 
-@mcp.tool()
+@debug_tool()
 async def get_playlist_items(ctx: Context, playlist_id: str) -> list[dict]:
     """Get items in a playlist."""
     return await get_ctx(ctx).client.get_playlist_items(playlist_id)
 
 
-@mcp.tool()
+@debug_tool()
 async def create_playlist(
     ctx: Context, title: str, playlist_type: str, uri: str
 ) -> dict:
@@ -34,7 +34,7 @@ async def create_playlist(
     return await get_ctx(ctx).client.create_playlist(title, playlist_type, uri)
 
 
-@mcp.tool()
+@debug_tool()
 async def edit_playlist(
     ctx: Context,
     playlist_id: str,
@@ -47,7 +47,7 @@ async def edit_playlist(
     return f"Playlist {playlist_id} updated."
 
 
-@mcp.tool()
+@debug_tool()
 async def delete_playlist(ctx: Context, playlist_id: str) -> str:
     """Delete a playlist. Requires write access."""
     require_write(ctx)
@@ -55,7 +55,7 @@ async def delete_playlist(ctx: Context, playlist_id: str) -> str:
     return f"Playlist {playlist_id} deleted."
 
 
-@mcp.tool()
+@debug_tool()
 async def add_playlist_items(ctx: Context, playlist_id: str, uri: str) -> str:
     """Add items to a playlist. Requires write access.
 
@@ -68,7 +68,7 @@ async def add_playlist_items(ctx: Context, playlist_id: str, uri: str) -> str:
     return f"Items added to playlist {playlist_id}."
 
 
-@mcp.tool()
+@debug_tool()
 async def remove_playlist_items(ctx: Context, playlist_id: str, uri: str) -> str:
     """Remove items from a playlist. Requires write access.
 

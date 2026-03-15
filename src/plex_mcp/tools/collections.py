@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import Context
 
-from ..server import get_ctx, mcp, require_write
+from ..server import debug_tool, get_ctx, require_write
 
 
-@mcp.tool()
+@debug_tool()
 async def list_collections(ctx: Context, section_id: str) -> list[dict]:
     """List all collections in a library section."""
     return await get_ctx(ctx).client.list_collections(section_id)
 
 
-@mcp.tool()
+@debug_tool()
 async def create_collection(
     ctx: Context, title: str, section_id: str, rating_keys: list[str]
 ) -> dict:
@@ -28,7 +28,7 @@ async def create_collection(
     return await get_ctx(ctx).client.create_collection(title, section_id, rating_keys)
 
 
-@mcp.tool()
+@debug_tool()
 async def edit_collection(
     ctx: Context,
     collection_id: str,
@@ -43,7 +43,7 @@ async def edit_collection(
     return f"Collection {collection_id} updated."
 
 
-@mcp.tool()
+@debug_tool()
 async def delete_collection(ctx: Context, collection_id: str) -> str:
     """Delete a collection. Requires write access."""
     require_write(ctx)
