@@ -18,6 +18,9 @@ from .config import Settings, load_settings
 
 logger = logging.getLogger("plex_mcp")
 
+# Module-level settings reference — set by create_mcp()
+_settings: Settings | None = None
+
 
 @dataclass
 class AppContext:
@@ -28,7 +31,7 @@ class AppContext:
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Create PlexClient from cached token (auth already done in __main__)."""
-    settings = load_settings()
+    settings = _settings if _settings is not None else load_settings()
     client_id = get_or_create_client_id(settings.client_id_path)
     token = load_cached_token(settings.token_path)
     if not token:
@@ -44,9 +47,11 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
         await client.close()
 
 
-def create_mcp(host: str = "127.0.0.1", port: int = 8000) -> FastMCP:
+def create_mcp(settings: Settings) -> FastMCP:
     """Create and return a configured FastMCP instance."""
-    server = FastMCP("Plex MCP Server", lifespan=app_lifespan, host=host, port=port)
+    global _settings
+    _settings = settings
+    server = FastMCP("Plex MCP Server", lifespan=app_lifespan, host=settings.host, port=settings.port)
 
     # Register tools by importing the tools package.
     # Tools reference `mcp` via get_mcp(), so set the module-level

@@ -19,3 +19,10 @@ plex-mcp = "plex_mcp.__main__:main"
 [build-system]
 requires = ["uv_build>=0.9.7,<0.10.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "anyio>=4.12.1",
+    "pytest>=9.0.2",
+    "pytest-anyio>=0.0.0",
+]

@@ -68,7 +68,7 @@ def main() -> None:
     # Import and create server after auth so stdout is free for interactive prompts
     from .server import create_mcp
 
-    server = create_mcp(host=settings.host, port=settings.port)
+    server = create_mcp(settings)
     server.run(transport=settings.transport)
 
 
