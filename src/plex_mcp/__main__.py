@@ -15,6 +15,17 @@ def main() -> None:
         help="MCP transport (default: stdio, or set PLEX_TRANSPORT env var)",
     )
     parser.add_argument(
+        "--host",
+        default=None,
+        help="Host to bind to for HTTP transports (default: 127.0.0.1, or set PLEX_HOST env var)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Port to bind to for HTTP transports (default: 8000, or set PLEX_PORT env var)",
+    )
+    parser.add_argument(
         "--read-only",
         action=argparse.BooleanOptionalAction,
         default=None,
@@ -27,14 +38,19 @@ def main() -> None:
     # CLI args override env vars
     if args.transport is not None:
         settings.transport = args.transport
+    if args.host is not None:
+        settings.host = args.host
+    if args.port is not None:
+        settings.port = args.port
     if args.read_only is not None:
         settings.read_only = args.read_only
 
     ensure_authenticated(settings)
-    # Import server after auth so stdout is free for interactive prompts
-    from .server import mcp
+    # Import and create server after auth so stdout is free for interactive prompts
+    from .server import create_mcp
 
-    mcp.run(transport=settings.transport)
+    server = create_mcp(host=settings.host, port=settings.port)
+    server.run(transport=settings.transport)
 
 
 if __name__ == "__main__":

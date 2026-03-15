@@ -34,7 +34,29 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
         await client.close()
 
 
-mcp = FastMCP("Plex MCP Server", lifespan=app_lifespan)
+def create_mcp(host: str = "127.0.0.1", port: int = 8000) -> FastMCP:
+    """Create and return a configured FastMCP instance."""
+    server = FastMCP("Plex MCP Server", lifespan=app_lifespan, host=host, port=port)
+
+    # Register tools by importing the tools package.
+    # Tools reference `mcp` via get_mcp(), so set the module-level
+    # reference before importing.
+    global mcp
+    mcp = server
+    from . import tools  # noqa: F401
+
+    return server
+
+
+# Module-level reference used by tool modules — set by create_mcp()
+mcp: FastMCP = None  # type: ignore[assignment]
+
+
+def get_mcp() -> FastMCP:
+    """Get the active FastMCP instance (for use by tool modules)."""
+    if mcp is None:
+        raise RuntimeError("MCP server not initialized. Call create_mcp() first.")
+    return mcp
 
 
 def get_ctx(ctx) -> AppContext:
@@ -50,7 +72,3 @@ def require_write(ctx) -> None:
             "This operation requires write access. "
             "Set PLEX_READ_ONLY=false in your .env to enable write operations."
         )
-
-
-# Import tools after mcp is defined to avoid circular imports
-from . import tools  # noqa: E402, F401
