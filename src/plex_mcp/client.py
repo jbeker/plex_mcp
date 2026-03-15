@@ -174,6 +174,7 @@ class PlexClient:
             "index",
             "parentIndex",
             "viewCount",
+            "viewedAt",
             "lastViewedAt",
             "thumb",
             "art",

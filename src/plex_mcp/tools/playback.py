@@ -15,7 +15,7 @@ async def get_active_sessions(ctx: Context) -> list[dict]:
 
 @debug_tool()
 async def get_history(ctx: Context, offset: int = 0, limit: int = 50) -> dict:
-    """Get playback history. Returns paginated results with totalSize, offset, and items."""
+    """Get playback history sorted by viewedAt descending (most recent first). Each item includes a viewedAt timestamp. Returns paginated results with totalSize, offset, and items."""
     return await get_ctx(ctx).client.get_history(offset, limit)
 
 
