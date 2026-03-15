@@ -27,7 +27,11 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     token = load_cached_token(settings.token_path)
     if not token:
         raise RuntimeError("No cached token found. Run `plex-mcp` interactively first.")
-    client = PlexClient(settings.plex_url, token, client_id, token_path=settings.token_path)
+    client = PlexClient(
+        settings.plex_url, token, client_id,
+        token_path=settings.token_path,
+        debug=settings.debug,
+    )
     try:
         yield AppContext(client=client, settings=settings)
     finally:

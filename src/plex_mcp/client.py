@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import logging
 import platform
 import sys
 import time
@@ -9,6 +11,8 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+
+logger = logging.getLogger("plex_mcp")
 
 
 class PlexAuthError(Exception):
@@ -31,13 +35,23 @@ class PlexClient:
         token: str,
         client_id: str,
         token_path: Path | None = None,
+        debug: bool = False,
     ) -> None:
         self._base_url = base_url
         self._token = token
         self._client_id = client_id
         self._token_path = token_path
+        self._debug = debug
         self._last_renewal_attempt: float = 0
         self._client = self._build_client(token)
+
+        if debug:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format="%(asctime)s [%(name)s] %(message)s",
+                stream=sys.stderr,
+            )
+            logger.setLevel(logging.DEBUG)
 
     def _plex_headers(self, token: str) -> dict[str, str]:
         return {
@@ -111,7 +125,23 @@ class PlexClient:
         # Proactively renew token if it's been 24+ hours since last check
         await self._try_renew_token()
 
+        if self._debug:
+            logger.debug(">>> %s %s", method, path)
+            if params:
+                logger.debug("    params: %s", json.dumps(params, default=str))
+            if data:
+                logger.debug("    data: %s", json.dumps(data, default=str))
+
         resp = await self._client.request(method, path, params=params, data=data)
+
+        if self._debug:
+            logger.debug("<<< %s %s (status %d, %d bytes)", method, path, resp.status_code, len(resp.content))
+            if resp.content:
+                try:
+                    logger.debug("    response: %s", json.dumps(resp.json(), indent=2, default=str))
+                except Exception:
+                    logger.debug("    response: (non-JSON) %s", resp.text[:500])
+
         if resp.status_code == 401:
             raise PlexAuthError(
                 "Plex token is no longer valid. Please restart the server to re-authenticate."

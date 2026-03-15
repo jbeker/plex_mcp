@@ -19,6 +19,7 @@ class Settings:
     transport: str = "stdio"
     host: str = "127.0.0.1"
     port: int = 8000
+    debug: bool = False
     token_path: Path = field(default_factory=lambda: Path(".plex_token"))
     client_id_path: Path = field(default_factory=lambda: Path(".plex_client_id"))
 
@@ -43,6 +44,7 @@ def load_settings() -> Settings:
 
     host = os.environ.get("PLEX_HOST", "127.0.0.1")
     port = int(os.environ.get("PLEX_PORT", "8000"))
+    debug = os.environ.get("PLEX_DEBUG", "false").lower() in ("true", "1", "yes")
 
     return Settings(
         plex_url=plex_url,
@@ -50,4 +52,5 @@ def load_settings() -> Settings:
         transport=transport,
         host=host,
         port=port,
+        debug=debug,
     )

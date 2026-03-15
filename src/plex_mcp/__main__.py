@@ -31,6 +31,12 @@ def main() -> None:
         default=None,
         help="Enable/disable read-only mode (default: true, or set PLEX_READ_ONLY env var)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=None,
+        help="Enable debug logging of API calls (default: false, or set PLEX_DEBUG env var)",
+    )
     args = parser.parse_args()
 
     settings = load_settings()
@@ -44,6 +50,8 @@ def main() -> None:
         settings.port = args.port
     if args.read_only is not None:
         settings.read_only = args.read_only
+    if args.debug is not None:
+        settings.debug = args.debug
 
     ensure_authenticated(settings)
     # Import and create server after auth so stdout is free for interactive prompts
